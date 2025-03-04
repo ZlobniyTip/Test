@@ -21,10 +21,12 @@ public class ItemHandler : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            //если предмет подобран при повтором нажати ны мышь предмет упадет
             if (_isTaken)
             {
                 DropItem();
             }
+            //если предмет не подобран рука его возьмет
             else
             {
                 CheckForItemCollision();
@@ -34,15 +36,19 @@ public class ItemHandler : MonoBehaviour
 
     private void CheckForItemCollision()
     {
+        //метод провер€ет все коллайдеры попавшие в радиус оверлап—фер
         Collider2D[] items = Physics2D.OverlapCircleAll(_hand.position, 0.2f);
 
         if (items.Length > 0)
         {
             for (int i = 0; i < items.Length; i++)
             {
+                //если на геймќбжекте колайдера есть компонент Item, то мы берем его в руку
                 if (items[i].TryGetComponent(out Item item))
                 {
                     PickupItem(item);
+
+                    //включаетс€ компонент который использует рейкаст предмета дл€ определени€ сло€ на который он может упасть, который мы вз€ли в руку
                     item.SwitchActivity(true);
                 }
             }
@@ -51,10 +57,14 @@ public class ItemHandler : MonoBehaviour
 
     private void PickupItem(Item item)
     {
+        //мен€ем спрайт вз€вшего предмет в руку
         _handSpriteRenderer.sprite = _handSprites[1];
+        //бул поле котора€ говорит о том что мы держим предмет в руке
         _isTaken = true;
+        //получаем риджитбади текущего айтема и отключаем ему физические свойства(гравитацию)
         _rbCurrentItem = item.GetComponent<Rigidbody2D>();
         _rbCurrentItem.simulated = false;
+        //в поле добавл€ем текущий айтем,устанавливаем ему родительский обьект "руку",чтоб он следовал за ним и обнул€ем локальные координаты
         _currentItem = item;
         _currentItem.transform.SetParent(_hand);
         _currentItem.transform.localPosition = Vector3.zero;
@@ -62,10 +72,14 @@ public class ItemHandler : MonoBehaviour
 
     private void DropItem()
     {
+        //мен€ем спрайт руки на дефолтный
         _handSpriteRenderer.sprite = _handSprites[0];
+        //выключаем компонент который определ€ет слои под предметом
         _currentItem.SwitchActivity(false);
+        //включаем симул€цию физики айтема и убираем его из дочерних обьектов "руки"
         _rbCurrentItem.simulated = true;
         _currentItem.transform.parent = null;
+        //бул поле устанавливаем в фолс (не держит предмет) и обнул€ем поле текущего предмета
         _isTaken = false;
         _currentItem = null;
     }
